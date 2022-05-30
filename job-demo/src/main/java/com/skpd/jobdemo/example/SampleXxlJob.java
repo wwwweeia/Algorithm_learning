@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
@@ -40,8 +37,10 @@ public class SampleXxlJob {
 
         for (int i = 0; i < 5; i++) {
             XxlJobHelper.log("这里执行业务逻辑哈哈哈:" + i);
+            System.out.println("bean方法执行了！");
             TimeUnit.SECONDS.sleep(2);
         }
+//        throw new Exception("失败了");
 //        try {
 ////            int i = 1/0;
 ////        }catch (Exception e){
@@ -256,4 +255,36 @@ public class SampleXxlJob {
     }
 
 
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = null;
+        try {
+            // command process
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.command("");
+            processBuilder.redirectErrorStream(true);
+
+            Process process = processBuilder.start();
+            //Process process = Runtime.getRuntime().exec(command);
+
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(process.getInputStream());
+            bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
+
+            // command log
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                XxlJobHelper.log(line);
+            }
+
+            // command exit
+            process.waitFor();
+            int exitValue = process.exitValue();
+
+        } catch (Exception e) {
+            XxlJobHelper.log(e);
+        } finally {
+            if (bufferedReader != null) {
+                bufferedReader.close();
+            }
+        }
+    }
 }
